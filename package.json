@@ -2,9 +2,12 @@
   "name": "roombridge",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Housing and roommate discovery for international students and professionals",
   "scripts": {
-    "start": "python3 -m http.server 8080",
-    "check": "node --check src/js/config.js && node --check src/js/core/app.js && node --check src/js/modules/life-hub.js"
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test:api": "node tests/api-smoke.mjs",
+    "check": "node --check server/server.js && node --check server/database.js && node --check server/auth.js && node --check server/services/matching.js && node --check server/services/ai.js && node --check src/js/config.js && node --check src/js/api-client.js && node --check src/js/core/app.js && node --check src/js/modules/life-hub.js"
   }
 }

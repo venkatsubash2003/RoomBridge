@@ -2,7 +2,7 @@
 
 ## Current prototype
 
-RoomBridge is a dependency-free browser application. The entry point is `index.html`; state is persisted in browser storage so every workflow can be demonstrated without infrastructure or credentials.
+RoomBridge is a dependency-free full-stack application. Node serves the browser client and authenticated REST/SSE APIs; native SQLite persists server data. Browser storage remains only for some prototype UI preferences and demo content.
 
 ```text
 index.html
@@ -10,9 +10,13 @@ index.html
   ├── src/js/core/app.js
   ├── src/js/modules/life-hub.js
   └── src/styles/main.css
+server/server.js
+  ├── server/database.js
+  ├── server/auth.js
+  └── server/services/*
 ```
 
-`core/app.js` owns routing, authentication demo flows, onboarding, matching, listings, messaging, lease transfer, and household formation. `modules/life-hub.js` owns safety, newcomer support, financial tools, post-move tools, and administrative workflows.
+`core/app.js` owns browser routing and product workflows. `api-client.js` connects the UI to cookie-authenticated endpoints. `server.js` owns HTTP and live events; `database.js` owns the relational schema; service modules isolate matching, AI, maps, and notifications.
 
 ## Production target
 

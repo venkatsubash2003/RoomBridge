@@ -130,19 +130,11 @@ function renderAuth() {
     const data = Object.fromEntries(new FormData(e.target));
     const error = document.querySelector("#authError");
     const email=data.email.trim().toLowerCase();
-    const users=authStore.users();
     if (signup) {
       if (!/(?=.*[A-Za-z])(?=.*\d).{8,}/.test(data.password)) { error.textContent="Use at least 8 characters, including a letter and a number."; return; }
-      if (users.some(u=>u.email===email)) { error.textContent="An account with this email already exists."; return; }
-      const salt=crypto.randomUUID();
-      const account={id:crypto.randomUUID(),name:data.name.trim(),email,salt,passwordHash:await authStore.hash(data.password,salt),emailVerified:false,phoneVerified:false,institutionVerified:false};
-      users.push(account); authStore.save(users);
-      state.pendingAuth={type:"email",accountId:account.id,destination:email,code:authStore.code()}; state.authMode="verify"; render();
+      try { const result=await RoomBridgeAPI.register({name:data.name.trim(),email,password:data.password});state.pendingAuth={type:"email",accountId:result.userId,destination:email,code:result.demoCode,verificationId:result.verificationId,server:true};state.authMode="verify";render() } catch(apiError) { error.textContent=apiError.message; }
     } else {
-      const account=users.find(u=>u.email===email);
-      if (!account || await authStore.hash(data.password,account.salt)!==account.passwordHash) { error.textContent="Email or password is incorrect."; return; }
-      if (!account.emailVerified) { state.pendingAuth={type:"email",accountId:account.id,destination:email,code:authStore.code()}; state.authMode="verify"; render(); return; }
-      state.user=authStore.session(account); const profile=JSON.parse(localStorage.getItem("rbUser")||"null"); if(profile?.email===account.email) state.user={...state.user,...profile}; state.screen=profile?.email===account.email?"dashboard":"onboard"; render();
+      try { const result=await RoomBridgeAPI.login({email,password:data.password});state.user=result.user;sessionStorage.setItem("rbSession",JSON.stringify(state.user));const profile=JSON.parse(localStorage.getItem("rbUser")||"null");if(profile?.email===email)state.user={...state.user,...profile};state.screen=profile?.email===email?"dashboard":"onboard";render() } catch(apiError) { error.textContent=apiError.message; }
     }
   });
 }
@@ -153,8 +145,8 @@ function renderVerification() {
   const label=p.type==="phone"?"phone number":"email address";
   app.innerHTML=authLayout(`<form class="auth-card" id="verifyForm"><button type="button" class="back-link" id="authBack">← Back</button><div class="verify-icon">${p.type==="phone"?'◫':'✉'}</div><h2>Verify your ${p.type}</h2><p class="subtext">We sent a 6-digit code to <strong>${p.destination}</strong>.</p><div class="demo-code"><span>Demo verification code</span><strong>${p.code}</strong></div><label>Verification code<input class="otp-input" name="code" required inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="one-time-code"></label><p class="auth-error" id="authError"></p><button class="btn btn-primary btn-wide">Verify and continue</button><button type="button" class="text-btn resend" id="resend">Resend code</button></form>`);
   document.querySelector("#authBack").onclick=()=>{state.authMode="signup";state.pendingAuth=null;render()};
-  document.querySelector("#resend").onclick=()=>{p.code=authStore.code();render();showToast("A new demo code was generated")};
-  document.querySelector("#verifyForm").onsubmit=e=>{e.preventDefault();const code=new FormData(e.target).get("code");if(code!==p.code){document.querySelector("#authError").textContent="That code is incorrect. Try the demo code shown above.";return}const users=authStore.users();const account=users.find(u=>u.id===p.accountId);if(!account)return;if(p.type==="email")account.emailVerified=true;else account.phoneVerified=true;authStore.save(users);state.user=authStore.session(account);state.pendingAuth=null;const profile=JSON.parse(localStorage.getItem("rbUser")||"null");if(profile?.email===account.email){state.user={...state.user,...profile};state.screen="dashboard"}else{state.screen="onboard"}render();showToast(`${p.type==='email'?'Email':'Phone'} verified successfully`)};
+  document.querySelector("#resend").onclick=async()=>{try{const result=await RoomBridgeAPI.resendCode(p.verificationId);p.verificationId=result.verificationId;p.code=result.demoCode;render();showToast("A new verification code was generated")}catch(error){showToast(error.message)}};
+  document.querySelector("#verifyForm").onsubmit=async e=>{e.preventDefault();const code=new FormData(e.target).get("code"),error=document.querySelector("#authError");try{const result=await RoomBridgeAPI.verify({verificationId:p.verificationId,code});state.user=result.user;sessionStorage.setItem("rbSession",JSON.stringify(state.user));state.pendingAuth=null;const profile=JSON.parse(localStorage.getItem("rbUser")||"null");if(profile?.email===state.user.email){state.user={...state.user,...profile};state.screen="dashboard"}else state.screen="onboard";render();showToast(`${p.type==='email'?'Email':'Phone'} verified successfully`)}catch(apiError){error.textContent=apiError.message}};
 }
 
 function renderForgotPassword() {
@@ -221,7 +213,7 @@ function renderOnboard() {
   document.querySelector("#profileForm").addEventListener("submit", e => {
     e.preventDefault(); const values=Object.fromEntries(new FormData(e.target)); if(state.step===4)["noSmoking","noPets","dietRequired","rareGuests"].forEach(k=>values[k]=new FormData(e.target).has(k)); Object.assign(state.user,values);
     if (state.step < 4) { state.step++; render(); }
-    else { localStorage.setItem("rbUser", JSON.stringify(state.user)); state.screen="dashboard"; render(); showToast("Your profile is live — welcome to RoomBridge!"); }
+    else { localStorage.setItem("rbUser", JSON.stringify(state.user)); RoomBridgeAPI.saveProfile({scenario:state.user.scenario,city:state.user.city,budget:Number(state.user.budget),roomType:state.user.room,moveDate:state.user.move,leaseDuration:state.user.duration,country:state.user.country,diet:state.user.diet,languages:(state.user.languages||"").split(/,\s*/),bio:state.user.preferences,lifestyle:{cleanliness:state.user.cleanliness,schedule:state.user.schedule,social:state.user.social,guests:state.user.guests},weights:{cleanliness:state.user.cleanlinessWeight,schedule:state.user.scheduleWeight,social:state.user.socialWeight,budget:state.user.budgetWeight},dealBreakers:{noSmoking:state.user.noSmoking,noPets:state.user.noPets,dietRequired:state.user.dietRequired,rareGuests:state.user.rareGuests}}).catch(()=>showToast("Profile saved locally; server sync will retry later")); state.screen="dashboard"; render(); showToast("Your profile is live — welcome to RoomBridge!"); }
   });
 }
 

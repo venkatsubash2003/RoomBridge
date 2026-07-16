@@ -10,7 +10,7 @@ npm start
 
 Open `http://localhost:8080`.
 
-No installation or external credentials are required. To validate JavaScript:
+The application server creates `data/roombridge.sqlite` automatically. No external credentials are required for local development. To validate JavaScript:
 
 ```bash
 npm run check
@@ -22,9 +22,11 @@ npm run check
 RoomBridge/
 ├── index.html                       Browser entry point
 ├── package.json                     Local commands and project metadata
+├── .env.example                     Optional provider configuration
 ├── README.md                        Setup and project overview
 ├── docs/
 │   ├── ARCHITECTURE.md              Current and production architecture
+│   ├── API.md                       Authenticated API reference
 │   ├── FEATURE_ORDER.md             Ordered feature roadmap
 │   └── SECURITY.md                  Production security requirements
 └── src/
@@ -36,6 +38,13 @@ RoomBridge/
     │       └── life-hub.js          Safety, international, finance, home, admin
     └── styles/
         └── main.css                 Responsive application design system
+├── server/
+│   ├── server.js                    HTTP, REST, SSE, and static server
+│   ├── database.js                  SQLite schema and database access
+│   ├── auth.js                      Password, session, and verification security
+│   └── services/                    Matching, AI, maps, and notifications
+└── tests/
+    └── api-smoke.mjs                End-to-end API smoke test
 ```
 
 ## Feature areas
@@ -56,4 +65,4 @@ RoomBridge/
 
 ## Prototype boundaries
 
-Browser storage and visible verification codes are used only to make the flows testable. OAuth, code delivery, maps, real-time communication, protected documents, moderation services, notifications, insurance, and payments require production backend integrations. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY.md](docs/SECURITY.md).
+The primary account, profile, and API flows now use the SQLite backend and secure cookie sessions. Development verification codes remain visible when `NODE_ENV` is not `production`. OAuth, email/SMS delivery, provider maps, protected object storage, calls, insurance, and payments still require configured production providers. See [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [docs/SECURITY.md](docs/SECURITY.md).
