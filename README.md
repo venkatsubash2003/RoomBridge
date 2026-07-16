@@ -1,26 +1,59 @@
 # RoomBridge
 
-A responsive, dependency-free product prototype for helping international students and professionals find compatible roommates and housing.
+RoomBridge is an interactive product prototype for helping international students and professionals find compatible roommates, housing, and support for living together.
 
-## Run locally
-
-Open `index.html` directly in a browser, or serve the directory:
+## Run
 
 ```bash
-python3 -m http.server 8080
+npm start
 ```
 
-Then visit `http://localhost:8080`.
+Open `http://localhost:8080`.
 
-## Included flows
+No installation or external credentials are required. To validate JavaScript:
 
-- Account registration
-- Three-step housing and lifestyle onboarding
-- Four housing scenarios: new home, shared room, available room, and replacement
-- Explainable compatibility scoring
-- Budget, room type, and saved-profile filters
-- Saved profiles and connection requests
-- Responsive mobile and desktop layouts
-- Browser persistence with `localStorage`
+```bash
+npm run check
+```
 
-This is a front-end prototype. Production readiness requires a backend, secure authentication, identity verification, moderation/reporting, database persistence, messaging, and fair-housing/privacy review.
+## File structure
+
+```text
+RoomBridge/
+├── index.html                       Browser entry point
+├── package.json                     Local commands and project metadata
+├── README.md                        Setup and project overview
+├── docs/
+│   ├── ARCHITECTURE.md              Current and production architecture
+│   ├── FEATURE_ORDER.md             Ordered feature roadmap
+│   └── SECURITY.md                  Production security requirements
+└── src/
+    ├── js/
+    │   ├── config.js                Non-secret runtime configuration
+    │   ├── core/
+    │   │   └── app.js               Router and core product workflows
+    │   └── modules/
+    │       └── life-hub.js          Safety, international, finance, home, admin
+    └── styles/
+        └── main.css                 Responsive application design system
+```
+
+## Feature areas
+
+- Secure authentication demo, verification, recovery, and session handling
+- International-student and professional onboarding
+- Weighted roommate matching, deal-breakers, explanations, feedback, and groups
+- Room, apartment, and lease-transfer listings with rich media
+- Search, maps, commute estimates, saved searches, and alerts
+- Private and group messaging, attachments, translation, calls, and blocking
+- Lease replacement, landlord approval, fees, documents, and handoff steps
+- Household invitations, budgets, voting, shortlists, rooms, and rent splitting
+- Reporting, moderation, fraud warnings, reputation, and privacy controls
+- Language, currency, community, relocation, and newcomer guidance
+- Affordability, move-in costs, expenses, deposits, insurance, and reminders
+- Agreements, chores, shopping, maintenance, calendar, and private feedback
+- Administrative moderation, verification, analytics, fraud, support, and flags
+
+## Prototype boundaries
+
+Browser storage and visible verification codes are used only to make the flows testable. OAuth, code delivery, maps, real-time communication, protected documents, moderation services, notifications, insurance, and payments require production backend integrations. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY.md](docs/SECURITY.md).
