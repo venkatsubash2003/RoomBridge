@@ -6,8 +6,25 @@
   "description": "Housing and roommate discovery for international students and professionals",
   "scripts": {
     "start": "node server/server.js",
+    "start:worker": "node server/worker.js",
     "dev": "node --watch server/server.js",
     "test:api": "node tests/api-smoke.mjs",
-    "check": "node --check server/server.js && node --check server/database.js && node --check server/auth.js && node --check server/services/matching.js && node --check server/services/ai.js && node --check src/js/config.js && node --check src/js/api-client.js && node --check src/js/core/app.js && node --check src/js/modules/life-hub.js"
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "test:load": "k6 run tests/load/api.js",
+    "backup": "sh scripts/backup-postgres.sh",
+    "restore": "sh scripts/restore-postgres.sh",
+    "grant-role": "node scripts/grant-role.mjs",
+    "check": "node --check server/server.js && node --check server/worker.js && node --check server/jobs.js && node --check server/database.js && node --check server/database-sqlite.js && node --check server/database-postgres.js && node --check server/redis.js && node --check server/realtime.js && node --check server/cache.js && node --check server/observability.js && node --check server/auth.js && node --check server/authorization.js && node --check server/config.js && node --check server/validation.js && node --check server/rate-limit.js && node --check server/audit.js && node --check server/storage.js && node --check server/services/notifications.js && node --check server/services/matching.js && node --check server/services/ai.js && node --check scripts/grant-role.mjs && node --check src/js/config.js && node --check src/js/api-client.js && node --check src/js/admin.js && node --check src/js/core/app.js && node --check src/js/modules/life-hub.js",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1093.0",
+    "@aws-sdk/s3-request-presigner": "^3.1093.0",
+    "pg": "^8.22.0",
+    "redis": "^6.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

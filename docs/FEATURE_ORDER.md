@@ -1,6 +1,6 @@
 # Feature implementation order
 
-The prototype presents the features in the following product order:
+The application presents the features in the following product order:
 
 1. Secure authentication and optional institutional verification
 2. Housing-needs and lifestyle onboarding

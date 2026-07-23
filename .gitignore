@@ -3,3 +3,5 @@ data/
 .DS_Store
 node_modules/
 npm-debug.log*
+test-results/
+playwright-report/

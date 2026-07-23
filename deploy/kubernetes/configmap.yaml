@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: roombridge
+data:
+  NODE_ENV: production
+  HOST: 0.0.0.0
+  PORT: "8080"
+  TRUST_PROXY: "true"
+  DATABASE_POOL_SIZE: "10"
+  DATABASE_SSL: "true"
+  SESSION_DAYS: "7"
+  REQUEST_BODY_LIMIT: "1000000"
+  LOG_LEVEL: info
+  OBJECT_STORAGE_REGION: us-east-1
+  OBJECT_STORAGE_FORCE_PATH_STYLE: "false"

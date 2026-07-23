@@ -1,68 +1,38 @@
 # RoomBridge
 
-RoomBridge is an interactive product prototype for helping international students and professionals find compatible roommates, housing, and support for living together.
+RoomBridge is a full-stack roommate and housing marketplace for international students and professionals. It includes authenticated profiles and matching, moderated listings, private messaging, household and lease workflows, trust-and-safety operations, private uploads, data export/deletion, and a restricted moderation console.
 
-## Run
+## Local development
+
+Requires Node.js 22.
 
 ```bash
+npm ci
 npm start
 ```
 
-Open `http://localhost:8080`.
-
-The application server creates `data/roombridge.sqlite` automatically. No external credentials are required for local development. To validate JavaScript:
+Open `http://localhost:8080`. Development uses SQLite at `data/roombridge.sqlite` and returns verification codes in API responses. These codes are never returned in production.
 
 ```bash
-npm run check
+npm run verify
+npm run test:api
+npm run test:e2e
 ```
 
-## File structure
+## Production architecture
 
-```text
-RoomBridge/
-├── index.html                       Browser entry point
-├── package.json                     Local commands and project metadata
-├── .env.example                     Optional provider configuration
-├── README.md                        Setup and project overview
-├── docs/
-│   ├── ARCHITECTURE.md              Current and production architecture
-│   ├── API.md                       Authenticated API reference
-│   ├── FEATURE_ORDER.md             Ordered feature roadmap
-│   └── SECURITY.md                  Production security requirements
-└── src/
-    ├── js/
-    │   ├── config.js                Non-secret runtime configuration
-    │   ├── core/
-    │   │   └── app.js               Router and core product workflows
-    │   └── modules/
-    │       └── life-hub.js          Safety, international, finance, home, admin
-    └── styles/
-        └── main.css                 Responsive application design system
-├── server/
-│   ├── server.js                    HTTP, REST, SSE, and static server
-│   ├── database.js                  SQLite schema and database access
-│   ├── auth.js                      Password, session, and verification security
-│   └── services/                    Matching, AI, maps, and notifications
-└── tests/
-    └── api-smoke.mjs                End-to-end API smoke test
-```
+Production startup fails unless HTTPS origin, PostgreSQL, Redis, private S3-compatible storage, malware scanning, email, SMS, maps, OpenAI, job encryption, and metrics credentials are configured. API and worker processes scale independently; Redis provides distributed limits, cache, realtime fan-out, and job coordination.
 
-## Feature areas
+Use the container and Kubernetes manifests under `deploy/`. Apply PostgreSQL migrations from `migrations/`, deploy workers before APIs, and validate readiness before sending traffic.
 
-- Secure authentication demo, verification, recovery, and session handling
-- International-student and professional onboarding
-- Weighted roommate matching, deal-breakers, explanations, feedback, and groups
-- Room, apartment, and lease-transfer listings with rich media
-- Search, maps, commute estimates, saved searches, and alerts
-- Private and group messaging, attachments, translation, calls, and blocking
-- Lease replacement, landlord approval, fees, documents, and handoff steps
-- Household invitations, budgets, voting, shortlists, rooms, and rent splitting
-- Reporting, moderation, fraud warnings, reputation, and privacy controls
-- Language, currency, community, relocation, and newcomer guidance
-- Affordability, move-in costs, expenses, deposits, insurance, and reminders
-- Agreements, chores, shopping, maintenance, calendar, and private feedback
-- Administrative moderation, verification, analytics, fraud, support, and flags
+## Documentation
 
-## Prototype boundaries
+- [Architecture](docs/ARCHITECTURE.md)
+- [API](docs/API.md)
+- [Security](docs/SECURITY.md)
+- [Production operations](docs/PRODUCTION.md)
+- [Performance and scaling](docs/PERFORMANCE.md)
+- [Launch checklist](docs/LAUNCH_CHECKLIST.md)
+- [Privacy controls](docs/PRIVACY_CONTROLS.md)
 
-The primary account, profile, and API flows now use the SQLite backend and secure cookie sessions. Development verification codes remain visible when `NODE_ENV` is not `production`. OAuth, email/SMS delivery, provider maps, protected object storage, calls, insurance, and payments still require configured production providers. See [docs/API.md](docs/API.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [docs/SECURITY.md](docs/SECURITY.md).
+Payments, insurance, and video calling are intentionally not offered. Enabling them requires separately approved providers, compliance design, and product work; the current application does not imply those capabilities.

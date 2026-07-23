@@ -1,21 +1,20 @@
 /**
- * Runtime configuration for the dependency-free prototype.
+ * Non-secret browser defaults. Provider configuration remains server-side.
  * Production secrets must never be placed in this file.
  */
 window.ROOMBRIDGE_CONFIG = Object.freeze({
   appName: "RoomBridge",
-  environment: "prototype",
+  environment: "server-managed",
   defaultLocale: "en-US",
   defaultCurrency: "USD",
-  demoVerification: true,
   integrations: Object.freeze({
-    authentication: false,
-    emailDelivery: false,
-    smsDelivery: false,
-    maps: false,
-    realtimeMessaging: false,
+    authentication: true,
+    emailDelivery: true,
+    smsDelivery: true,
+    maps: true,
+    realtimeMessaging: true,
     videoCalling: false,
-    secureStorage: false,
+    secureStorage: true,
     payments: false
   })
 });
